@@ -1,8 +1,10 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyPatrolState : EnemyState
 {
-
+    private int currentCheckpoint = 0;
+    private float waitTimer = 0;
     public override void EnterState(EnemyAIController enemy)
     {
         base.EnterState(enemy);
@@ -10,23 +12,30 @@ public class EnemyPatrolState : EnemyState
 
     public override void UpdateState()
     {
-        Vector3 direction = m_enemy.player.transform.position - m_enemy.transform.position; // Get the direction from the enemy to the player
-        Vector3 normalizedDirection = direction.normalized; // Normalize the direction vector
-        float distance = direction.magnitude; // Get the distance between the enemy and the player
-
-        RaycastHit hit;
-        bool isBlocked = Physics.Raycast(m_enemy.transform.position, normalizedDirection, out hit, distance, m_enemy.playerBlockingLayer);
-
-        if (isBlocked )
+        m_enemy.m_navMeshAgent.SetDestination(m_enemy.patrolPoints[currentCheckpoint].transform.position); // Move towards the current checkpoint
+    }
+    public override void OnTriggerStay(Collider other)
+    {
+        Debug.Log(waitTimer);
+        if (other.gameObject == m_enemy.patrolPoints[currentCheckpoint]) // Checks if the enemy has reached the current checkpoint
         {
-            Debug.DrawLine(m_enemy.transform.position, hit.point, Color.red); // Draw a red line to the point of collision
+            waitTimer += Time.deltaTime * 0.5f;
         }
-        else
+
+        if (waitTimer >= m_enemy.waitTime && currentCheckpoint < m_enemy.patrolPoints.Length -1) // Go to the next checkpoint after waiting for the specified time
         {
-            Debug.DrawLine(m_enemy.transform.position, m_enemy.player.transform.position, Color.green); // Draw a green line to the player
+            currentCheckpoint++;
+            waitTimer = 0;
+        }
+        if (waitTimer >= m_enemy.waitTime && currentCheckpoint <= m_enemy.patrolPoints.Length -1) // If the last checkpoint is reached reset to the first checkpoint)
+        {
+            currentCheckpoint = 0; 
+            waitTimer = 0;
         }
     }
 
+
+    
     public override void ExitState()
     {
         

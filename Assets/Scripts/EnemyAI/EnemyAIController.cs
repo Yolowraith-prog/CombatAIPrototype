@@ -1,8 +1,8 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyAIController : MonoBehaviour
 {
-    [SerializeField]
     private EnemyState currentState;
     private EnemyPatrolState patrolState = new EnemyPatrolState();
     private EnemySuspicousState suspicousState = new EnemySuspicousState();
@@ -10,22 +10,35 @@ public class EnemyAIController : MonoBehaviour
     private EnemyChaseState chaseState = new EnemyChaseState();
     private EnemyAttackState attackState = new EnemyAttackState();
     private EnemySearchState searchState = new EnemySearchState();
-    EnemyReturnState returnState = new EnemyReturnState();
+    private EnemyReturnState returnState = new EnemyReturnState();
 
     public GameObject player;
     public LayerMask playerBlockingLayer;
+
+    public EnemyPerception perception;
+    [Header("Patrol Points / If enmpty won't move")]
+    public GameObject[] patrolPoints;
+
+    public NavMeshAgent m_navMeshAgent;
+
+    [Header("Enemy Rules")]
+    public float waitTime = 5f;
 
 
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+
+        perception = GetComponent<EnemyPerception>();
+        m_navMeshAgent = GetComponent<NavMeshAgent>();
+
         currentState = patrolState;
         currentState.EnterState(this);
     }
 
     private void Update()
     {
-        Debug.Log("Current State: " + currentState.GetType().Name);
+        //Debug.Log("Current State: " + currentState.GetType().Name);
         currentState?.UpdateState(); // null check for update
     }
 
@@ -38,6 +51,10 @@ public class EnemyAIController : MonoBehaviour
         currentState.EnterState(this);
     }
 
+    private void OnTriggerStay(Collider other)
+    {
+        currentState?.OnTriggerStay(other); // Calls the ontriggerstay here since monobehaviour 
+    }
     public void ChangeToPatrol()
     {
         if (currentState == patrolState) return;

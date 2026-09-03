@@ -2,15 +2,19 @@ using UnityEngine;
 
 public class EnemySearchState : EnemyState
 {
-    private EnemyAIController m_enemy;
+  
     public override void EnterState(EnemyAIController enemy)
     {
-        m_enemy = enemy;
+        base.EnterState(enemy);
     }
 
     public override void UpdateState()
     {
         
+    }
+
+    public override void OnTriggerStay(Collider other)
+    {
     }
 
     public override void ExitState()

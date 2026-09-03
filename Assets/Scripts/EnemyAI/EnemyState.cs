@@ -11,4 +11,6 @@ public abstract class EnemyState
     public abstract void UpdateState();
     public abstract void ExitState();
 
+    public abstract void OnTriggerStay(Collider other);
+
 }

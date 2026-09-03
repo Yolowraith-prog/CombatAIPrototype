@@ -50,7 +50,6 @@ public class PlayerMovement : MonoBehaviour
         MoveCamera();
         ChangeSpeed();
 
-        
     }
 
     void GetInput()
